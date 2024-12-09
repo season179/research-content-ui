@@ -1,4 +1,4 @@
-import { Copy } from "lucide-react";
+import { Copy, X } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from 'react-markdown';
 import { LoadingSpinner } from "./LoadingSpinner";
@@ -7,9 +7,10 @@ interface ArticleContentProps {
     content: string;
     type: "tweet" | "blog" | "newsletter" | "linkedin";
     isLoading?: boolean;
+    onRemove: () => void;
 }
 
-export function ArticleContent({ content, type, isLoading = false }: ArticleContentProps) {
+export function ArticleContent({ content, type, isLoading = false, onRemove }: ArticleContentProps) {
     const [copySuccess, setCopySuccess] = useState(false);
 
     const typeLabels = {
@@ -40,6 +41,17 @@ export function ArticleContent({ content, type, isLoading = false }: ArticleCont
     if (isLoading) {
         return (
             <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold text-gray-700">
+                        {typeLabels[type]}
+                    </h3>
+                    <button
+                        onClick={onRemove}
+                        className="p-1 text-gray-400 hover:text-gray-600 rounded-lg"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
                 <div className="flex justify-center items-center h-40">
                     <LoadingSpinner size="lg" />
                 </div>
@@ -97,17 +109,25 @@ export function ArticleContent({ content, type, isLoading = false }: ArticleCont
                 <h3 className="text-lg font-semibold text-gray-700">
                     {typeLabels[type]}
                 </h3>
-                <button
-                    onClick={handleCopy}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-200 text-sm ${
-                        copySuccess 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-gray-100 hover:bg-gray-200'
-                    }`}
-                >
-                    <Copy className={`w-4 h-4 ${copySuccess ? 'text-green-700' : ''}`} />
-                    {copySuccess ? 'Copied!' : 'Copy'}
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={handleCopy}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-200 text-sm ${
+                            copySuccess 
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-gray-100 hover:bg-gray-200'
+                        }`}
+                    >
+                        <Copy className={`w-4 h-4 ${copySuccess ? 'text-green-700' : ''}`} />
+                        {copySuccess ? 'Copied!' : 'Copy'}
+                    </button>
+                    <button
+                        onClick={onRemove}
+                        className="p-1 text-gray-400 hover:text-gray-600 rounded-lg"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
             </div>
 
             <div className="border-t pt-4">

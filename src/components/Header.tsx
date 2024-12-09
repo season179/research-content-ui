@@ -14,7 +14,7 @@ export function Header({ onOpenSettings }: HeaderProps) {
             <div className="p-2 bg-blue-100 rounded-full">
               <Brain className="w-6 h-6 text-blue-600" />
             </div>
-            <h1 className="text-xl font-semibold">Research Assistant</h1>
+            <h1 className="text-xl font-semibold">Research Assistant & Content Writer</h1>
           </div>
           
           <button

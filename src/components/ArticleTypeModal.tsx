@@ -5,12 +5,14 @@ interface ArticleTypeModalProps {
     onSelect: (type: "tweet" | "blog" | "newsletter" | "linkedin") => void;
     onClose: () => void;
     isOpen: boolean;
+    existingTypes: ("tweet" | "blog" | "newsletter" | "linkedin")[];
 }
 
 export function ArticleTypeModal({
     onSelect,
     onClose,
     isOpen,
+    existingTypes,
 }: ArticleTypeModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
 
@@ -69,24 +71,35 @@ export function ArticleTypeModal({
                     Choose Content Type
                 </h2>
                 <div className="grid grid-cols-1 gap-4">
-                    {options.map(({ type, icon: Icon, label, description }) => (
-                        <button
-                            key={type}
-                            onClick={() => {
-                                onSelect(type);
-                                onClose();
-                            }}
-                            className="flex items-center gap-4 p-4 rounded-lg border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
-                        >
-                            <div className="p-2 bg-gray-100 rounded-lg">
-                                <Icon className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <div className="font-medium">{label}</div>
-                                <div className="text-sm text-gray-600">{description}</div>
-                            </div>
-                        </button>
-                    ))}
+                    {options.map(({ type, icon: Icon, label, description }) => {
+                        const isExisting = existingTypes.includes(type);
+                        return (
+                            <button
+                                key={type}
+                                onClick={() => {
+                                    onSelect(type);
+                                    onClose();
+                                }}
+                                disabled={isExisting}
+                                className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all text-left
+                                    ${isExisting 
+                                        ? 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed' 
+                                        : 'border-gray-200 hover:border-blue-500 hover:bg-blue-50'
+                                    }`}
+                            >
+                                <div className="p-2 bg-gray-100 rounded-lg">
+                                    <Icon className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <div className="font-medium">
+                                        {label}
+                                        {isExisting && " (Already Added)"}
+                                    </div>
+                                    <div className="text-sm text-gray-600">{description}</div>
+                                </div>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
         </div>
