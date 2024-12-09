@@ -6,6 +6,7 @@ import {
     generateLinkedInPost,
 } from "../services/content";
 import type { ResearchData } from "./researchStore";
+import { researchDB } from "../utils/researchDB";
 
 export interface ArticleContentType {
     content: string;
@@ -63,20 +64,44 @@ export const useContentStore = create<ContentState>((set, get) => ({
 
         try {
             let generatedContent = "";
+            const queryToUse =
+                researchData.refinedQuery || researchData.originalQuery;
 
             switch (type) {
                 case "tweet":
-                    generatedContent = await generateTweet(researchData);
+                    generatedContent = await generateTweet({
+                        ...researchData,
+                        refinedQuery: queryToUse,
+                    });
                     break;
                 case "blog":
-                    generatedContent = await generateBlogPost(researchData);
+                    generatedContent = await generateBlogPost({
+                        ...researchData,
+                        refinedQuery: queryToUse,
+                    });
                     break;
                 case "newsletter":
-                    generatedContent = await generateNewsletter(researchData);
+                    generatedContent = await generateNewsletter({
+                        ...researchData,
+                        refinedQuery: queryToUse,
+                    });
                     break;
                 case "linkedin":
-                    generatedContent = await generateLinkedInPost(researchData);
+                    generatedContent = await generateLinkedInPost({
+                        ...researchData,
+                        refinedQuery: queryToUse,
+                    });
                     break;
+            }
+
+            // Save the generated article to the research database
+            try {
+                await researchDB.addArticle(researchData.id, {
+                    type,
+                    content: generatedContent,
+                });
+            } catch (error) {
+                console.error("Failed to save article to database:", error);
             }
 
             set((state) => {
@@ -102,45 +127,46 @@ export const useContentStore = create<ContentState>((set, get) => ({
                     ...state,
                     articleContents: [
                         ...state.articleContents,
-                        {
-                            type,
-                            content: generatedContent,
-                            isLoading: false,
-                        },
+                        { type, content: generatedContent, isLoading: false },
                     ],
                 };
             });
         } catch (error) {
-            console.error("Error generating content:", error);
-            set((state) => ({
-                ...state,
-                error: "Failed to generate content. Please try again.",
-                articleContents: state.articleContents.filter(
-                    (content) => content.type !== type
-                ),
-                isContentGenerating:
-                    state.articleContents.length <= 1
-                        ? false
-                        : state.isContentGenerating,
-            }));
+            console.error("Content generation error:", error);
+            set((state) => {
+                const existingIndex = state.articleContents.findIndex(
+                    (content) => content.type === type
+                );
+                if (existingIndex !== -1) {
+                    return {
+                        ...state,
+                        articleContents: state.articleContents.map(
+                            (content, index) =>
+                                index === existingIndex
+                                    ? { ...content, isLoading: false }
+                                    : content
+                        ),
+                        error: "Failed to generate content. Please try again.",
+                    };
+                }
+                return {
+                    ...state,
+                    articleContents: state.articleContents.filter(
+                        (content) => content.type !== type
+                    ),
+                    error: "Failed to generate content. Please try again.",
+                };
+            });
         } finally {
-            set((state) => ({ ...state, isContentGenerating: false }));
+            set({ isContentGenerating: false });
         }
     },
 
     removeContent: (index) => {
-        set((state) => {
-            const newContents = state.articleContents.filter(
+        set((state) => ({
+            articleContents: state.articleContents.filter(
                 (_, i) => i !== index
-            );
-            if (newContents.length === 0) {
-                return {
-                    articleContents: newContents,
-                    isContentGenerating: false,
-                    activeTab: null,
-                };
-            }
-            return { articleContents: newContents };
-        });
+            ),
+        }));
     },
 }));

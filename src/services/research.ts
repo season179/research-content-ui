@@ -1,6 +1,6 @@
 import { tavily } from "@tavily/core";
 import OpenAI from "openai";
-import { apiKeyDB } from "../utils/db";
+import { apiKeyDB } from "../utils/apiKeyDB";
 
 async function refineSearchQuery(
     query: string,

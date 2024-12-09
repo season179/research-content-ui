@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { apiKeyDB } from "../utils/db";
+import { apiKeyDB } from "../utils/apiKeyDB";
 
 interface ApiKeys {
     openai: string;
@@ -26,10 +26,20 @@ export const useApiKeysStore = create<ApiKeysState>((set) => ({
     initializeKeys: async () => {
         try {
             const keys = await apiKeyDB.getApiKeys();
-            set({ apiKeys: keys, isInitialized: true, error: "" });
+            const hasValidKeys = keys.openai && keys.tavily;
+            set({
+                apiKeys: keys,
+                isInitialized: !!hasValidKeys,
+                error: !hasValidKeys
+                    ? "Please enter your API keys to get started"
+                    : "",
+            });
         } catch (error) {
             console.error(error);
-            set({ error: "Failed to initialize API keys", isInitialized: true });
+            set({
+                error: "Failed to initialize API keys",
+                isInitialized: false,
+            });
         }
     },
 

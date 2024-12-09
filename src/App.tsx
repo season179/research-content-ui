@@ -18,11 +18,15 @@ export function App() {
     const apiKeyError = useApiKeysStore((state) => state.error);
     const handleApiKeysSubmit = useApiKeysStore((state) => state.setApiKeys);
     const initializeKeys = useApiKeysStore((state) => state.initializeKeys);
+    const initializeResearch = useResearchStore(
+        (state) => state.initializeResearch
+    );
 
-    // Initialize API keys when app starts
+    // Initialize databases when app starts
     useEffect(() => {
         initializeKeys();
-    }, [initializeKeys]);
+        initializeResearch();
+    }, [initializeKeys, initializeResearch]);
 
     const isLoading = useResearchStore((state) => state.isLoading);
     const researchData = useResearchStore((state) => state.researchData);

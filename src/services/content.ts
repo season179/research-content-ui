@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { apiKeyDB } from "../utils/db";
+import { apiKeyDB } from "../utils/apiKeyDB";
 
 interface SearchResult {
     title: string;
