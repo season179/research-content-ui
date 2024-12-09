@@ -7,10 +7,11 @@ import {
 } from "../services/content";
 import type { ResearchData } from "./researchStore";
 import { researchDB } from "../utils/researchDB";
+import { CONTENT_TYPES, ContentType } from "../constants/contentTypes";
 
 export interface ArticleContentType {
     content: string;
-    type: "tweet" | "blog" | "newsletter" | "linkedin";
+    type: ContentType;
     isLoading: boolean;
 }
 
@@ -21,12 +22,66 @@ interface ContentState {
     error: string;
     setActiveTab: (tab: string | null) => void;
     handleArticleType: (
-        type: "tweet" | "blog" | "newsletter" | "linkedin",
+        type: ContentType,
         researchData: ResearchData
     ) => Promise<void>;
     removeContent: (index: number) => void;
     clearOldContent: () => void;
 }
+
+const updateContentLoadingState = (
+    articleContents: ArticleContentType[],
+    type: ContentType,
+    isLoading: boolean
+): ArticleContentType[] => {
+    const existingIndex = articleContents.findIndex(
+        (content) => content.type === type
+    );
+
+    if (existingIndex !== -1) {
+        return articleContents.map((content, index) =>
+            index === existingIndex ? { ...content, isLoading } : content
+        );
+    }
+
+    return [...articleContents, { type, content: "", isLoading }];
+};
+
+const generateContentByType = async (
+    type: ContentType,
+    researchData: ResearchData
+): Promise<string> => {
+    const queryToUse = researchData.refinedQuery || researchData.originalQuery;
+    const researchWithQuery = { ...researchData, refinedQuery: queryToUse };
+
+    switch (type) {
+        case CONTENT_TYPES.TWEET:
+            return generateTweet(researchWithQuery);
+        case CONTENT_TYPES.BLOG:
+            return generateBlogPost(researchWithQuery);
+        case CONTENT_TYPES.NEWSLETTER:
+            return generateNewsletter(researchWithQuery);
+        case CONTENT_TYPES.LINKEDIN:
+            return generateLinkedInPost(researchWithQuery);
+        default:
+            throw new Error(`Unsupported content type: ${type}`);
+    }
+};
+
+const saveGeneratedArticleToDatabase = async (
+    researchData: ResearchData,
+    type: ContentType,
+    generatedContent: string
+) => {
+    try {
+        await researchDB.addArticle(researchData.id, {
+            type,
+            content: generatedContent,
+        });
+    } catch (error) {
+        console.error("Failed to save article to database:", error);
+    }
+};
 
 export const useContentStore = create<ContentState>((set, get) => ({
     articleContents: [],
@@ -45,125 +100,52 @@ export const useContentStore = create<ContentState>((set, get) => ({
         set({ isContentGenerating: true, error: "" });
 
         try {
-            const { articleContents } = get();
-            const existingIndex = articleContents.findIndex(
-                (content) => content.type === type
+            // Update loading state
+            set((state) => ({
+                articleContents: updateContentLoadingState(
+                    state.articleContents,
+                    type,
+                    true
+                ),
+            }));
+
+            // Generate content
+            const generatedContent = await generateContentByType(
+                type,
+                researchData
             );
 
-            // Update loading state for specific content
-            if (existingIndex !== -1) {
-                set((state) => ({
-                    articleContents: state.articleContents.map(
-                        (content, index) =>
-                            index === existingIndex
-                                ? { ...content, isLoading: true }
-                                : content
-                    ),
-                }));
-            } else {
-                set((state) => ({
-                    articleContents: [
-                        ...state.articleContents,
-                        { type, content: "", isLoading: true },
-                    ],
-                }));
-            }
+            // Save generated article to database
+            await saveGeneratedArticleToDatabase(
+                researchData,
+                type,
+                generatedContent
+            );
 
-            // Generate content based on type
-            let generatedContent = "";
-            const queryToUse =
-                researchData.refinedQuery || researchData.originalQuery;
-
-            switch (type) {
-                case "tweet":
-                    generatedContent = await generateTweet({
-                        ...researchData,
-                        refinedQuery: queryToUse,
-                    });
-                    break;
-                case "blog":
-                    generatedContent = await generateBlogPost({
-                        ...researchData,
-                        refinedQuery: queryToUse,
-                    });
-                    break;
-                case "newsletter":
-                    generatedContent = await generateNewsletter({
-                        ...researchData,
-                        refinedQuery: queryToUse,
-                    });
-                    break;
-                case "linkedin":
-                    generatedContent = await generateLinkedInPost({
-                        ...researchData,
-                        refinedQuery: queryToUse,
-                    });
-                    break;
-            }
-
-            // Save the generated article to the research database
-            try {
-                await researchDB.addArticle(researchData.id, {
+            // Update content
+            set((state) => ({
+                articleContents: updateContentLoadingState(
+                    state.articleContents,
                     type,
-                    content: generatedContent,
-                });
-            } catch (error) {
-                console.error("Failed to save article to database:", error);
-            }
-
-            set((state) => {
-                const existingIndex = state.articleContents.findIndex(
-                    (content) => content.type === type
-                );
-                if (existingIndex !== -1) {
-                    return {
-                        ...state,
-                        articleContents: state.articleContents.map(
-                            (content, index) =>
-                                index === existingIndex
-                                    ? {
-                                          type,
-                                          content: generatedContent,
-                                          isLoading: false,
-                                      }
-                                    : content
-                        ),
-                    };
-                }
-                return {
-                    ...state,
-                    articleContents: [
-                        ...state.articleContents,
-                        { type, content: generatedContent, isLoading: false },
-                    ],
-                };
-            });
+                    false
+                ).map((content) =>
+                    content.type === type
+                        ? { ...content, content: generatedContent }
+                        : content
+                ),
+            }));
         } catch (error) {
             console.error("Content generation error:", error);
-            set((state) => {
-                const existingIndex = state.articleContents.findIndex(
-                    (content) => content.type === type
-                );
-                if (existingIndex !== -1) {
-                    return {
-                        ...state,
-                        articleContents: state.articleContents.map(
-                            (content, index) =>
-                                index === existingIndex
-                                    ? { ...content, isLoading: false }
-                                    : content
-                        ),
-                        error: "Failed to generate content. Please try again.",
-                    };
-                }
-                return {
-                    ...state,
-                    articleContents: state.articleContents.filter(
-                        (content) => content.type !== type
-                    ),
-                    error: "Failed to generate content. Please try again.",
-                };
-            });
+            set({ error: "Failed to generate content. Please try again." });
+
+            // Reset loading state on error
+            set((state) => ({
+                articleContents: updateContentLoadingState(
+                    state.articleContents,
+                    type,
+                    false
+                ),
+            }));
         } finally {
             set({ isContentGenerating: false });
         }
