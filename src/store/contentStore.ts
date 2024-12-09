@@ -5,7 +5,7 @@ import {
     generateNewsletter,
     generateLinkedInPost,
 } from "../services/content";
-import type { ResearchData } from "../hooks/useResearch";
+import type { ResearchData } from "./researchStore";
 
 export interface ArticleContentType {
     content: string;

@@ -7,7 +7,7 @@ interface SearchResult {
     content: string;
 }
 
-interface ResearchData {
+export interface ResearchData {
     originalQuery: string;
     refinedQuery: string;
     results: SearchResult[];

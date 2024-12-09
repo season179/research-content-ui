@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ResearchInput } from "./components/ResearchInput";
 import { ArticleTypeModal } from "./components/ArticleTypeModal";
 import { ApiKeyInput } from "./components/ApiKeyInput";
 import { Header } from "./components/Header";
 import { SettingsModal } from "./components/SettingsModal";
 import { MainContent } from "./components/MainContent";
-import { useApiKeys } from "./hooks/useApiKeys";
+import { useApiKeysStore } from "./store/apiKeysStore";
 import { useResearchStore } from "./store/researchStore";
 import { useContentStore } from "./store/contentStore";
 
@@ -13,13 +13,16 @@ export function App() {
     const [showArticleModal, setShowArticleModal] = useState(false);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
 
-    const {
-        apiKeys,
-        isInitialized,
-        error: apiKeyError,
-        handleApiKeysSubmit,
-        handleDeleteKeys,
-    } = useApiKeys();
+    const apiKeys = useApiKeysStore((state) => state.apiKeys);
+    const isInitialized = useApiKeysStore((state) => state.isInitialized);
+    const apiKeyError = useApiKeysStore((state) => state.error);
+    const handleApiKeysSubmit = useApiKeysStore((state) => state.setApiKeys);
+    const initializeKeys = useApiKeysStore((state) => state.initializeKeys);
+
+    // Initialize API keys when app starts
+    useEffect(() => {
+        initializeKeys();
+    }, [initializeKeys]);
 
     const isLoading = useResearchStore((state) => state.isLoading);
     const researchData = useResearchStore((state) => state.researchData);
@@ -120,9 +123,6 @@ export function App() {
             <SettingsModal
                 isOpen={showSettingsModal}
                 onClose={() => setShowSettingsModal(false)}
-                currentKeys={apiKeys}
-                onUpdateKeys={handleApiKeysSubmit}
-                onDeleteKeys={handleDeleteKeys}
             />
         </div>
     );

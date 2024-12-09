@@ -1,28 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Eye, EyeOff, Lock, Trash2 } from "lucide-react";
 import { LoadingSpinner } from "./LoadingSpinner";
-
-interface ApiKeys {
-    openai: string;
-    tavily: string;
-}
+import { useApiKeysStore } from "../store/apiKeysStore";
 
 interface SettingsModalProps {
     isOpen: boolean;
     onClose: () => void;
-    currentKeys: ApiKeys;
-    onUpdateKeys: (keys: ApiKeys) => Promise<void>;
-    onDeleteKeys: () => Promise<void>;
 }
 
-export function SettingsModal({
-    isOpen,
-    onClose,
-    currentKeys,
-    onUpdateKeys,
-    onDeleteKeys,
-}: SettingsModalProps) {
-    const [keys, setKeys] = useState(currentKeys);
+export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
+    const apiKeys = useApiKeysStore((state) => state.apiKeys);
+    const setApiKeys = useApiKeysStore((state) => state.setApiKeys);
+    const deleteKeys = useApiKeysStore((state) => state.deleteKeys);
+
+    const [keys, setKeys] = useState(apiKeys);
     const [showKeys, setShowKeys] = useState({
         openai: false,
         tavily: false,
@@ -34,6 +25,11 @@ export function SettingsModal({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    // Update local state when API keys change
+    useEffect(() => {
+        setKeys(apiKeys);
+    }, [apiKeys]);
 
     if (!isOpen) return null;
 
@@ -64,7 +60,7 @@ export function SettingsModal({
         if (validateKeys()) {
             setIsSubmitting(true);
             try {
-                await onUpdateKeys(keys);
+                await setApiKeys(keys);
                 onClose();
             } catch (error) {
                 console.error("Failed to update API keys:", error);
@@ -77,7 +73,7 @@ export function SettingsModal({
     const handleDelete = async () => {
         setIsDeleting(true);
         try {
-            await onDeleteKeys();
+            await deleteKeys();
             onClose();
         } catch (error) {
             console.error("Failed to delete API keys:", error);

@@ -1,6 +1,6 @@
 import { ResearchResult } from "./ResearchResult";
 import { ContentTabs } from "./ContentTabs";
-import type { ResearchData } from "../hooks/useResearch";
+import type { ResearchData } from "../store/researchStore";
 import type { ArticleContentType } from "../hooks/useContentGeneration";
 
 interface MainContentProps {
