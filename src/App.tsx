@@ -2,11 +2,10 @@ import { useState, useEffect } from "react";
 import { ResearchInput } from "./components/ResearchInput";
 import { ResearchResult } from "./components/ResearchResult";
 import { ArticleTypeModal } from "./components/ArticleTypeModal";
-import { ArticleContent } from "./components/ArticleContent";
+import { ContentTabs } from "./components/ContentTabs";
 import { ApiKeyInput } from "./components/ApiKeyInput";
 import { Header } from "./components/Header";
 import { SettingsModal } from "./components/SettingsModal";
-import { ContentTabs } from "./components/ContentTabs";
 import { apiKeyDB } from "./utils/db";
 import { performResearch } from "./services/research";
 import {
@@ -51,6 +50,7 @@ export function App() {
     const [isInitialized, setIsInitialized] = useState(false);
     const [error, setError] = useState<string>("");
     const [activeTab, setActiveTab] = useState<string | null>(null);
+    const [isContentGenerating, setIsContentGenerating] = useState(false);
 
     useEffect(() => {
         const loadApiKeys = async () => {
@@ -100,6 +100,7 @@ export function App() {
             setResearchData(researchDataWithPage);
             setArticleContents([]); // Clear previous content when starting new research
             setActiveTab(null);
+            setIsContentGenerating(false);
         } catch (error) {
             console.error("Research error:", error);
             setError(
@@ -143,12 +144,13 @@ export function App() {
     ) => {
         if (!researchData) return;
 
+        setIsContentGenerating(true);
+        
         // Check if this type already exists
         const existingIndex = articleContents.findIndex(
             (content) => content.type === type
         );
         
-        // If it exists, update its loading state
         if (existingIndex !== -1) {
             const updatedContents = [...articleContents];
             updatedContents[existingIndex] = {
@@ -157,7 +159,6 @@ export function App() {
             };
             setArticleContents(updatedContents);
         } else {
-            // If it doesn't exist, add a new loading content
             setArticleContents((prev) => [
                 ...prev,
                 { type, content: "", isLoading: true },
@@ -182,7 +183,6 @@ export function App() {
                     break;
             }
 
-            // Update the content
             setArticleContents((prev) => {
                 const existingIndex = prev.findIndex(
                     (content) => content.type === type
@@ -204,11 +204,12 @@ export function App() {
         } catch (error) {
             console.error("Error generating content:", error);
             setError("Failed to generate content. Please try again.");
-            
-            // Remove the loading state if there was an error
             setArticleContents((prev) =>
                 prev.filter((content) => content.type !== type)
             );
+            if (articleContents.length === 0) {
+                setIsContentGenerating(false);
+            }
         }
     };
 
@@ -234,24 +235,39 @@ export function App() {
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <Header onOpenSettings={() => setShowSettingsModal(true)} />
 
-            <div className="flex-1 overflow-hidden">
+            <main className="flex-1 overflow-hidden">
                 <div className="container mx-auto px-4 py-8 h-full">
-                    <div className="flex flex-col gap-8 h-full">
-                        <ResearchInput
-                            onSubmit={handleResearch}
-                            isLoading={isLoading}
-                        />
+                    <div className="flex flex-col items-center gap-8 h-full">
+                        {/* Search Input */}
+                        <div className={`transition-all duration-500 ease-in-out ${
+                            researchData ? 'w-full max-w-2xl' : 'w-full max-w-xl'
+                        }`}>
+                            <ResearchInput
+                                onSubmit={handleResearch}
+                                isLoading={isLoading}
+                            />
+                        </div>
 
+                        {/* Error Message */}
                         {error && (
-                            <div className="w-full bg-red-50 text-red-600 p-4 rounded-lg">
+                            <div className="w-full max-w-2xl bg-red-50 text-red-600 p-4 rounded-lg">
                                 {error}
                             </div>
                         )}
 
+                        {/* Main Content Area */}
                         {researchData && (
-                            <div className="flex gap-6 flex-1 min-h-0">
-                                {/* Left side: Research Results */}
-                                <div className="w-1/2 overflow-y-auto">
+                            <div className={`w-full transition-all duration-500 ease-in-out ${
+                                isContentGenerating 
+                                    ? 'flex gap-6' 
+                                    : 'flex justify-center'
+                            }`}>
+                                {/* Research Results */}
+                                <div className={`transition-all duration-500 ease-in-out ${
+                                    isContentGenerating 
+                                        ? 'w-1/2' 
+                                        : 'w-full max-w-2xl'
+                                }`}>
                                     <ResearchResult
                                         originalQuery={researchData.originalQuery}
                                         refinedQuery={researchData.refinedQuery}
@@ -262,34 +278,46 @@ export function App() {
                                     />
                                 </div>
 
-                                {/* Right side: Generated Content */}
-                                <div className="w-1/2 overflow-hidden flex flex-col">
-                                    <ContentTabs
-                                        contents={articleContents}
-                                        activeTab={activeTab}
-                                        onTabChange={setActiveTab}
-                                        onRemoveContent={(index) => {
-                                            setArticleContents((prev) =>
-                                                prev.filter((_, i) => i !== index)
-                                            );
-                                            if (articleContents.length === 1) {
-                                                setActiveTab(null);
-                                            }
-                                        }}
-                                    />
+                                {/* Generated Content */}
+                                <div className={`w-1/2 overflow-hidden transition-all duration-500 ease-in-out ${
+                                    isContentGenerating 
+                                        ? 'opacity-100 translate-x-0' 
+                                        : 'opacity-0 translate-x-full w-0'
+                                }`}>
+                                    {isContentGenerating && (
+                                        <ContentTabs
+                                            contents={articleContents}
+                                            activeTab={activeTab}
+                                            onTabChange={setActiveTab}
+                                            onRemoveContent={(index) => {
+                                                setArticleContents((prev) => {
+                                                    const newContents = prev.filter((_, i) => i !== index);
+                                                    if (newContents.length === 0) {
+                                                        setIsContentGenerating(false);
+                                                    }
+                                                    return newContents;
+                                                });
+                                                if (articleContents.length === 1) {
+                                                    setActiveTab(null);
+                                                }
+                                            }}
+                                        />
+                                    )}
                                 </div>
                             </div>
                         )}
                     </div>
                 </div>
-            </div>
+            </main>
 
+            {/* Modals */}
             <ArticleTypeModal
                 isOpen={showArticleModal}
                 onClose={() => setShowArticleModal(false)}
                 onSelect={(type) => {
                     handleArticleType(type);
                     setActiveTab(type);
+                    setShowArticleModal(false);
                 }}
                 existingTypes={articleContents.map(
                     (content) => content.type

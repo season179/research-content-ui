@@ -55,7 +55,7 @@ export function ResearchResult({
     };
 
     return (
-        <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
+        <div className="bg-white rounded-lg shadow-lg p-6 transition-all duration-500 ease-in-out">
             <div className="mb-4 p-4 bg-gray-50 rounded-lg">
                 <div className="text-sm text-gray-600">
                     <div className="mb-2">

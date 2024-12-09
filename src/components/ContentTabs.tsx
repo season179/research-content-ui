@@ -44,7 +44,7 @@ export function ContentTabs({
     };
 
     return (
-        <div className="flex flex-col h-full bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="flex flex-col h-full bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-500 ease-in-out">
             <div className="flex border-b">
                 {contents.map((content, index) => {
                     const Icon = typeIcons[content.type];
