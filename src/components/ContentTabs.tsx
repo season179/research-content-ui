@@ -1,4 +1,4 @@
-import { FileText, Mail, Linkedin, Twitter, X } from "lucide-react";
+import { FileText, Mail, Linkedin, X } from "lucide-react";
 import { ArticleContent } from "./ArticleContent";
 
 interface ContentTabsProps {
@@ -23,14 +23,16 @@ export function ContentTabs({
             <div className="flex items-center justify-center h-full bg-white rounded-lg border-2 border-dashed border-gray-200">
                 <div className="text-center text-gray-500">
                     <p className="mb-2">No content generated yet</p>
-                    <p className="text-sm">Click "Create Article" to get started</p>
+                    <p className="text-sm">
+                        Click "Create Article" to get started
+                    </p>
                 </div>
             </div>
         );
     }
 
     const typeIcons = {
-        tweet: Twitter,
+        tweet: X,
         blog: FileText,
         newsletter: Mail,
         linkedin: Linkedin,

@@ -18,52 +18,55 @@ export function ArticleTypeModal({
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
-            if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+            if (
+                modalRef.current &&
+                !modalRef.current.contains(event.target as Node)
+            ) {
                 onClose();
             }
         }
 
         if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
+            document.addEventListener("mousedown", handleClickOutside);
         }
 
         return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [isOpen, onClose]);
 
     if (!isOpen) return null;
 
     const options = [
-        { 
-            type: "tweet" as const, 
-            icon: X, 
+        {
+            type: "tweet" as const,
+            icon: X,
             label: "Tweet Thread",
-            description: "A series of connected tweets"
+            description: "A series of connected tweets",
         },
-        { 
-            type: "blog" as const, 
-            icon: FileText, 
+        {
+            type: "blog" as const,
+            icon: FileText,
             label: "Blog Post",
-            description: "A detailed article with sections"
+            description: "A detailed article with sections",
         },
-        { 
-            type: "newsletter" as const, 
-            icon: Mail, 
+        {
+            type: "newsletter" as const,
+            icon: Mail,
             label: "Newsletter",
-            description: "An engaging email update"
+            description: "An engaging email update",
         },
-        { 
-            type: "linkedin" as const, 
-            icon: Linkedin, 
+        {
+            type: "linkedin" as const,
+            icon: Linkedin,
             label: "LinkedIn Post",
-            description: "A professional network update"
+            description: "A professional network update",
         },
     ];
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div 
+            <div
                 ref={modalRef}
                 className="bg-white rounded-xl p-6 max-w-md w-full"
             >
@@ -82,9 +85,10 @@ export function ArticleTypeModal({
                                 }}
                                 disabled={isExisting}
                                 className={`flex items-center gap-4 p-4 rounded-lg border-2 transition-all text-left
-                                    ${isExisting 
-                                        ? 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed' 
-                                        : 'border-gray-200 hover:border-blue-500 hover:bg-blue-50'
+                                    ${
+                                        isExisting
+                                            ? "border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed"
+                                            : "border-gray-200 hover:border-blue-500 hover:bg-blue-50"
                                     }`}
                             >
                                 <div className="p-2 bg-gray-100 rounded-lg">
@@ -95,7 +99,9 @@ export function ArticleTypeModal({
                                         {label}
                                         {isExisting && " (Already Added)"}
                                     </div>
-                                    <div className="text-sm text-gray-600">{description}</div>
+                                    <div className="text-sm text-gray-600">
+                                        {description}
+                                    </div>
                                 </div>
                             </button>
                         );

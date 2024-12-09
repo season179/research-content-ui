@@ -1,20 +1,22 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
     generateTweet,
     generateBlogPost,
     generateNewsletter,
     generateLinkedInPost,
-} from '../services/content';
-import type { ResearchData } from '../hooks/useResearch';
+} from "../services/content";
+import type { ResearchData } from "../hooks/useResearch";
 
-interface ArticleContentType {
+export interface ArticleContentType {
     content: string;
     type: "tweet" | "blog" | "newsletter" | "linkedin";
     isLoading: boolean;
 }
 
 export function useContentGeneration() {
-    const [articleContents, setArticleContents] = useState<ArticleContentType[]>([]);
+    const [articleContents, setArticleContents] = useState<
+        ArticleContentType[]
+    >([]);
     const [activeTab, setActiveTab] = useState<string | null>(null);
     const [isContentGenerating, setIsContentGenerating] = useState(false);
     const [error, setError] = useState<string>("");
@@ -26,11 +28,11 @@ export function useContentGeneration() {
         if (!researchData) return;
 
         setIsContentGenerating(true);
-        
+
         const existingIndex = articleContents.findIndex(
             (content) => content.type === type
         );
-        
+
         if (existingIndex !== -1) {
             const updatedContents = [...articleContents];
             updatedContents[existingIndex] = {
@@ -113,6 +115,6 @@ export function useContentGeneration() {
         error,
         setActiveTab,
         handleArticleType,
-        removeContent
+        removeContent,
     };
 }

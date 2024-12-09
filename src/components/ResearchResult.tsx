@@ -29,25 +29,29 @@ export function ResearchResult({
 
     const handleCopy = () => {
         // Create the formatted text
-        const formattedText = `Original Query: ${originalQuery}\nRefined Query: ${refinedQuery}\n\n` +
-            results.map(result => 
-                `${result.title}\n${result.url}\n\n${result.content}`
-            ).join('\n\n---\n\n');
+        const formattedText =
+            `Original Query: ${originalQuery}\nRefined Query: ${refinedQuery}\n\n` +
+            results
+                .map(
+                    (result) =>
+                        `${result.title}\n${result.url}\n\n${result.content}`
+                )
+                .join("\n\n---\n\n");
 
         // Create a temporary textarea element
-        const textarea = document.createElement('textarea');
+        const textarea = document.createElement("textarea");
         textarea.value = formattedText;
-        textarea.style.position = 'fixed';  // Avoid scrolling to bottom
+        textarea.style.position = "fixed"; // Avoid scrolling to bottom
         document.body.appendChild(textarea);
         textarea.select();
 
         try {
             // Execute the copy command
-            document.execCommand('copy');
+            document.execCommand("copy");
             setCopySuccess(true);
             setTimeout(() => setCopySuccess(false), 2000);
         } catch (err) {
-            console.error('Failed to copy text:', err);
+            console.error("Failed to copy text:", err);
         } finally {
             // Clean up
             document.body.removeChild(textarea);
@@ -95,13 +99,17 @@ export function ResearchResult({
                     onClick={handleCopy}
                     disabled={isLoading}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 disabled:opacity-50 ${
-                        copySuccess 
-                            ? 'bg-green-100 text-green-700' 
-                            : 'bg-gray-100 hover:bg-gray-200'
+                        copySuccess
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-100 hover:bg-gray-200"
                     }`}
                 >
-                    <Copy className={`w-4 h-4 ${copySuccess ? 'text-green-700' : ''}`} />
-                    {copySuccess ? 'Copied!' : 'Copy'}
+                    <Copy
+                        className={`w-4 h-4 ${
+                            copySuccess ? "text-green-700" : ""
+                        }`}
+                    />
+                    {copySuccess ? "Copied!" : "Copy"}
                 </button>
 
                 <button

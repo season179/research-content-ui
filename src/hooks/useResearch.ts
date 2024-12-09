@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { performResearch } from '../services/research';
+import { useState } from "react";
+import { performResearch } from "../services/research";
 
 interface SearchResult {
     title: string;
@@ -7,7 +7,7 @@ interface SearchResult {
     content: string;
 }
 
-interface ResearchData {
+export interface ResearchData {
     originalQuery: string;
     refinedQuery: string;
     results: SearchResult[];
@@ -31,7 +31,9 @@ export function useResearch() {
             setResearchData(researchDataWithPage);
         } catch (error) {
             console.error("Research error:", error);
-            setError("Failed to perform research. Please check your API keys and try again.");
+            setError(
+                "Failed to perform research. Please check your API keys and try again."
+            );
         } finally {
             setIsLoading(false);
         }
@@ -70,6 +72,6 @@ export function useResearch() {
         researchData,
         error,
         handleResearch,
-        handleMoreResearch
+        handleMoreResearch,
     };
 }

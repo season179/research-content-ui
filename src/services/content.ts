@@ -2,98 +2,110 @@ import OpenAI from "openai";
 import { apiKeyDB } from "../utils/db";
 
 interface SearchResult {
-  title: string;
-  url: string;
-  content: string;
+    title: string;
+    url: string;
+    content: string;
 }
 
 interface ResearchData {
-  originalQuery: string;
-  refinedQuery: string;
-  results: SearchResult[];
+    originalQuery: string;
+    refinedQuery: string;
+    results: SearchResult[];
 }
 
-export async function generateTweet(researchData: ResearchData): Promise<string> {
-  const keys = await apiKeyDB.getApiKeys();
-  
-  if (!keys.openai) {
-    throw new Error("OpenAI API key not found");
-  }
+export async function generateTweet(
+    researchData: ResearchData
+): Promise<string> {
+    const keys = await apiKeyDB.getApiKeys();
 
-  const openai = new OpenAI({
-    apiKey: keys.openai,
-    dangerouslyAllowBrowser: true,
-  });
+    if (!keys.openai) {
+        throw new Error("OpenAI API key not found");
+    }
 
-  const researchSummary = `
+    const openai = new OpenAI({
+        apiKey: keys.openai,
+        dangerouslyAllowBrowser: true,
+    });
+
+    const researchSummary = `
 Original Query: ${researchData.originalQuery}
 Refined Query: ${researchData.refinedQuery}
 
 Key Findings:
-${researchData.results.map(result => `- ${result.content.slice(0, 200)}...`).join('\n')}
+${researchData.results
+    .map((result) => `- ${result.content.slice(0, 200)}...`)
+    .join("\n")}
   `.trim();
 
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      temperature: 0.7,
-      messages: [
-        {
-          role: "system",
-          content: `You are a skilled social media writer who creates engaging, informative tweets. 
+    try {
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o",
+            temperature: 0.7,
+            messages: [
+                {
+                    role: "system",
+                    content: `You are a skilled social media writer who creates engaging, informative tweets. 
           Create a tweet thread (3-5 tweets) based on the research findings.
           Each tweet should be numbered and separated by a newline.
           Include relevant emojis.
           Make it engaging and informative while maintaining accuracy.
           Each tweet must be under 280 characters.
-          Don't include hashtags.`
-        },
-        {
-          role: "user",
-          content: researchSummary
-        }
-      ]
-    });
+          Don't include hashtags.`,
+                },
+                {
+                    role: "user",
+                    content: researchSummary,
+                },
+            ],
+        });
 
-    return completion.choices[0].message.content || "Failed to generate tweet";
-  } catch (error) {
-    console.error("Error generating tweet:", error);
-    throw new Error("Failed to generate tweet");
-  }
+        return (
+            completion.choices[0].message.content || "Failed to generate tweet"
+        );
+    } catch (error) {
+        console.error("Error generating tweet:", error);
+        throw new Error("Failed to generate tweet");
+    }
 }
 
-export async function generateBlogPost(researchData: ResearchData): Promise<string> {
-  const keys = await apiKeyDB.getApiKeys();
-  
-  if (!keys.openai) {
-    throw new Error("OpenAI API key not found");
-  }
+export async function generateBlogPost(
+    researchData: ResearchData
+): Promise<string> {
+    const keys = await apiKeyDB.getApiKeys();
 
-  const openai = new OpenAI({
-    apiKey: keys.openai,
-    dangerouslyAllowBrowser: true,
-  });
+    if (!keys.openai) {
+        throw new Error("OpenAI API key not found");
+    }
 
-  const researchSummary = `
+    const openai = new OpenAI({
+        apiKey: keys.openai,
+        dangerouslyAllowBrowser: true,
+    });
+
+    const researchSummary = `
 Original Query: ${researchData.originalQuery}
 Refined Query: ${researchData.refinedQuery}
 
 Research Findings:
-${researchData.results.map(result => `
+${researchData.results
+    .map(
+        (result) => `
 Source: ${result.title}
 URL: ${result.url}
 Content: ${result.content}
-`).join('\n---\n')}
+`
+    )
+    .join("\n---\n")}
   `.trim();
 
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      temperature: 0.7,
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert blog writer who creates comprehensive, well-structured articles.
+    try {
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o",
+            temperature: 0.7,
+            messages: [
+                {
+                    role: "system",
+                    content: `You are an expert blog writer who creates comprehensive, well-structured articles.
           Create a detailed blog post based on the provided research findings.
           
           IMPORTANT: Use proper markdown formatting with clear headings and spacing:
@@ -114,54 +126,63 @@ Content: ${result.content}
           
           Make it informative and engaging while maintaining accuracy.
           Aim for around 1000-1500 words.
-          Include relevant examples and explanations.`
-        },
-        {
-          role: "user",
-          content: researchSummary
-        }
-      ]
-    });
+          Include relevant examples and explanations.`,
+                },
+                {
+                    role: "user",
+                    content: researchSummary,
+                },
+            ],
+        });
 
-    return completion.choices[0].message.content || "Failed to generate blog post";
-  } catch (error) {
-    console.error("Error generating blog post:", error);
-    throw new Error("Failed to generate blog post");
-  }
+        return (
+            completion.choices[0].message.content ||
+            "Failed to generate blog post"
+        );
+    } catch (error) {
+        console.error("Error generating blog post:", error);
+        throw new Error("Failed to generate blog post");
+    }
 }
 
-export async function generateNewsletter(researchData: ResearchData): Promise<string> {
-  const keys = await apiKeyDB.getApiKeys();
-  
-  if (!keys.openai) {
-    throw new Error("OpenAI API key not found");
-  }
+export async function generateNewsletter(
+    researchData: ResearchData
+): Promise<string> {
+    const keys = await apiKeyDB.getApiKeys();
 
-  const openai = new OpenAI({
-    apiKey: keys.openai,
-    dangerouslyAllowBrowser: true,
-  });
+    if (!keys.openai) {
+        throw new Error("OpenAI API key not found");
+    }
 
-  const researchSummary = `
+    const openai = new OpenAI({
+        apiKey: keys.openai,
+        dangerouslyAllowBrowser: true,
+    });
+
+    const researchSummary = `
 Original Query: ${researchData.originalQuery}
 Refined Query: ${researchData.refinedQuery}
 
 Research Findings:
-${researchData.results.map(result => `
+${researchData.results
+    .map(
+        (result) => `
 Source: ${result.title}
 URL: ${result.url}
 Content: ${result.content}
-`).join('\n---\n')}
+`
+    )
+    .join("\n---\n")}
   `.trim();
 
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      temperature: 0.7,
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert newsletter writer who creates engaging and informative email newsletters.
+    try {
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o",
+            temperature: 0.7,
+            messages: [
+                {
+                    role: "system",
+                    content: `You are an expert newsletter writer who creates engaging and informative email newsletters.
           Create a newsletter based on the provided research findings.
           
           IMPORTANT: Use proper markdown formatting with clear structure:
@@ -183,54 +204,63 @@ Content: ${result.content}
           Make it conversational yet professional.
           Keep paragraphs short and scannable.
           Include relevant examples and insights.
-          Aim for around 500-800 words.`
-        },
-        {
-          role: "user",
-          content: researchSummary
-        }
-      ]
-    });
+          Aim for around 500-800 words.`,
+                },
+                {
+                    role: "user",
+                    content: researchSummary,
+                },
+            ],
+        });
 
-    return completion.choices[0].message.content || "Failed to generate newsletter";
-  } catch (error) {
-    console.error("Error generating newsletter:", error);
-    throw new Error("Failed to generate newsletter");
-  }
+        return (
+            completion.choices[0].message.content ||
+            "Failed to generate newsletter"
+        );
+    } catch (error) {
+        console.error("Error generating newsletter:", error);
+        throw new Error("Failed to generate newsletter");
+    }
 }
 
-export async function generateLinkedInPost(researchData: ResearchData): Promise<string> {
-  const keys = await apiKeyDB.getApiKeys();
-  
-  if (!keys.openai) {
-    throw new Error("OpenAI API key not found");
-  }
+export async function generateLinkedInPost(
+    researchData: ResearchData
+): Promise<string> {
+    const keys = await apiKeyDB.getApiKeys();
 
-  const openai = new OpenAI({
-    apiKey: keys.openai,
-    dangerouslyAllowBrowser: true,
-  });
+    if (!keys.openai) {
+        throw new Error("OpenAI API key not found");
+    }
 
-  const researchSummary = `
+    const openai = new OpenAI({
+        apiKey: keys.openai,
+        dangerouslyAllowBrowser: true,
+    });
+
+    const researchSummary = `
 Original Query: ${researchData.originalQuery}
 Refined Query: ${researchData.refinedQuery}
 
 Research Findings:
-${researchData.results.map(result => `
+${researchData.results
+    .map(
+        (result) => `
 Source: ${result.title}
 URL: ${result.url}
 Content: ${result.content}
-`).join('\n---\n')}
+`
+    )
+    .join("\n---\n")}
   `.trim();
 
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
-      temperature: 0.7,
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert LinkedIn content creator who writes engaging professional posts.
+    try {
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o",
+            temperature: 0.7,
+            messages: [
+                {
+                    role: "system",
+                    content: `You are an expert LinkedIn content creator who writes engaging professional posts.
           Create a LinkedIn post based on the provided research findings.
           
           IMPORTANT: Format the post for maximum engagement:
@@ -252,18 +282,21 @@ Content: ${result.content}
           Focus on providing value to your network.
           Keep paragraphs short (2-3 lines max).
           Aim for around 200-300 words.
-          End with a clear call-to-action.`
-        },
-        {
-          role: "user",
-          content: researchSummary
-        }
-      ]
-    });
+          End with a clear call-to-action.`,
+                },
+                {
+                    role: "user",
+                    content: researchSummary,
+                },
+            ],
+        });
 
-    return completion.choices[0].message.content || "Failed to generate LinkedIn post";
-  } catch (error) {
-    console.error("Error generating LinkedIn post:", error);
-    throw new Error("Failed to generate LinkedIn post");
-  }
+        return (
+            completion.choices[0].message.content ||
+            "Failed to generate LinkedIn post"
+        );
+    } catch (error) {
+        console.error("Error generating LinkedIn post:", error);
+        throw new Error("Failed to generate LinkedIn post");
+    }
 }

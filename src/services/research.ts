@@ -34,7 +34,11 @@ async function refineSearchQuery(
     }
 }
 
-export async function performResearch(topic: string, page: number = 1, enhance: boolean = true) {
+export async function performResearch(
+    topic: string,
+    page: number = 1,
+    enhance: boolean = true
+) {
     try {
         const keys = await apiKeyDB.getApiKeys();
         if (!keys.tavily || !keys.openai) {
@@ -42,15 +46,15 @@ export async function performResearch(topic: string, page: number = 1, enhance: 
         }
 
         // Only refine the query on the first page and if enhancement is enabled
-        const refinedQuery = (page === 1 && enhance) ? 
-            await refineSearchQuery(topic, keys.openai) : 
-            topic;
+        const refinedQuery =
+            page === 1 && enhance
+                ? await refineSearchQuery(topic, keys.openai)
+                : topic;
 
         const tvly = tavily({ apiKey: keys.tavily });
         const response = await tvly.search(refinedQuery, {
             days: 365,
             maxResults: 5,
-            page: page,
         });
 
         return {

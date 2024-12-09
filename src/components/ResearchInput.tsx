@@ -34,10 +34,14 @@ export function ResearchInput({ onSubmit, isLoading }: ResearchInputProps) {
                     disabled={isLoading}
                     className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-500 hover:text-blue-600 disabled:opacity-50"
                 >
-                    {isLoading ? <LoadingSpinner size="sm" /> : <Search className="w-6 h-6" />}
+                    {isLoading ? (
+                        <LoadingSpinner size="sm" />
+                    ) : (
+                        <Search className="w-6 h-6" />
+                    )}
                 </button>
             </div>
-            
+
             <div className="flex items-center gap-2">
                 <input
                     type="checkbox"
@@ -47,7 +51,10 @@ export function ResearchInput({ onSubmit, isLoading }: ResearchInputProps) {
                     className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                     disabled={isLoading}
                 />
-                <label htmlFor="enhance-query" className="text-sm text-gray-600">
+                <label
+                    htmlFor="enhance-query"
+                    className="text-sm text-gray-600"
+                >
                     Enhance query with AI for better results
                 </label>
             </div>

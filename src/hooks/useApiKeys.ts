@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { apiKeyDB } from '../utils/db';
+import { useState, useEffect } from "react";
+import { apiKeyDB } from "../utils/db";
 
 interface ApiKeys {
     openai: string;
@@ -54,6 +54,6 @@ export function useApiKeys() {
         isInitialized,
         error,
         handleApiKeysSubmit,
-        handleDeleteKeys
+        handleDeleteKeys,
     };
 }

@@ -1,11 +1,13 @@
-import { ResearchResult } from './ResearchResult';
-import { ContentTabs } from './ContentTabs';
+import { ResearchResult } from "./ResearchResult";
+import { ContentTabs } from "./ContentTabs";
+import type { ResearchData } from "../hooks/useResearch";
+import type { ArticleContentType } from "../hooks/useContentGeneration";
 
 interface MainContentProps {
-    researchData: any;
+    researchData: ResearchData | null;
     isLoading: boolean;
     isContentGenerating: boolean;
-    articleContents: any[];
+    articleContents: ArticleContentType[];
     activeTab: string | null;
     onMoreResearch: () => void;
     onCreateArticle: () => void;
@@ -22,25 +24,27 @@ export function MainContent({
     onMoreResearch,
     onCreateArticle,
     onTabChange,
-    onRemoveContent
+    onRemoveContent,
 }: MainContentProps) {
     return (
         <div className="w-full flex justify-center">
-            <div className={`transition-all duration-500 ease-in-out flex gap-6 ${
-                isContentGenerating 
-                    ? 'w-full justify-between' 
-                    : 'w-full max-w-2xl justify-center'
-            }`}>
+            <div
+                className={`transition-all duration-500 ease-in-out flex gap-6 ${
+                    isContentGenerating
+                        ? "w-full justify-between"
+                        : "w-full max-w-2xl justify-center"
+                }`}
+            >
                 {/* Research Results */}
-                <div className={`transition-all duration-500 ease-in-out ${
-                    isContentGenerating 
-                        ? 'w-1/2' 
-                        : 'w-full'
-                }`}>
+                <div
+                    className={`transition-all duration-500 ease-in-out ${
+                        isContentGenerating ? "w-1/2" : "w-full"
+                    }`}
+                >
                     <ResearchResult
-                        originalQuery={researchData.originalQuery}
-                        refinedQuery={researchData.refinedQuery}
-                        results={researchData.results}
+                        originalQuery={researchData?.originalQuery ?? ""}
+                        refinedQuery={researchData?.refinedQuery ?? ""}
+                        results={researchData?.results ?? []}
                         onMoreResearch={onMoreResearch}
                         onCreateArticle={onCreateArticle}
                         isLoading={isLoading}
@@ -48,11 +52,13 @@ export function MainContent({
                 </div>
 
                 {/* Generated Content */}
-                <div className={`w-1/2 overflow-hidden transition-all duration-500 ease-in-out ${
-                    isContentGenerating 
-                        ? 'opacity-100 translate-x-0' 
-                        : 'opacity-0 translate-x-full hidden'
-                }`}>
+                <div
+                    className={`w-1/2 overflow-hidden transition-all duration-500 ease-in-out ${
+                        isContentGenerating
+                            ? "opacity-100 translate-x-0"
+                            : "opacity-0 translate-x-full hidden"
+                    }`}
+                >
                     {isContentGenerating && (
                         <ContentTabs
                             contents={articleContents}

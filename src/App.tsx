@@ -13,12 +13,12 @@ export function App() {
     const [showArticleModal, setShowArticleModal] = useState(false);
     const [showSettingsModal, setShowSettingsModal] = useState(false);
 
-    const { 
-        apiKeys, 
-        isInitialized, 
-        error: apiKeyError, 
-        handleApiKeysSubmit, 
-        handleDeleteKeys 
+    const {
+        apiKeys,
+        isInitialized,
+        error: apiKeyError,
+        handleApiKeysSubmit,
+        handleDeleteKeys,
     } = useApiKeys();
 
     const {
@@ -26,7 +26,7 @@ export function App() {
         researchData,
         error: researchError,
         handleResearch,
-        handleMoreResearch
+        handleMoreResearch,
     } = useResearch();
 
     const {
@@ -36,7 +36,7 @@ export function App() {
         error: contentError,
         setActiveTab,
         handleArticleType,
-        removeContent
+        removeContent,
     } = useContentGeneration();
 
     if (!isInitialized) {
@@ -66,9 +66,13 @@ export function App() {
             <main className="flex-1 container mx-auto px-4 py-8">
                 <div className="flex flex-col items-center gap-8">
                     {/* Search Input */}
-                    <div className={`transition-all duration-500 ease-in-out ${
-                        researchData ? 'w-full max-w-2xl' : 'w-full max-w-xl'
-                    }`}>
+                    <div
+                        className={`transition-all duration-500 ease-in-out ${
+                            researchData
+                                ? "w-full max-w-2xl"
+                                : "w-full max-w-xl"
+                        }`}
+                    >
                         <ResearchInput
                             onSubmit={handleResearch}
                             isLoading={isLoading}
@@ -108,9 +112,7 @@ export function App() {
                     setActiveTab(type);
                     setShowArticleModal(false);
                 }}
-                existingTypes={articleContents.map(
-                    (content) => content.type
-                )}
+                existingTypes={articleContents.map((content) => content.type)}
             />
 
             <SettingsModal
