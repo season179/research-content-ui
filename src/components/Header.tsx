@@ -14,9 +14,14 @@ export function Header({ onOpenSettings }: HeaderProps) {
                         <div className="p-2 bg-blue-100 rounded-full">
                             <Brain className="w-6 h-6 text-blue-600" />
                         </div>
-                        <h1 className="text-xl font-semibold">
-                            Research Assistant & Content Writer
-                        </h1>
+                        <div>
+                            <h1 className="text-xl font-semibold">
+                                Research Assistant & Content Writer
+                            </h1>
+                            <p className="text-sm text-gray-600 mt-1">
+                                Transform research into tweets, blogs, newsletters, and LinkedIn posts
+                            </p>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -25,6 +30,7 @@ export function Header({ onOpenSettings }: HeaderProps) {
                             onClick={onOpenSettings}
                             className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                             title="Manage API Keys"
+                            aria-label="Open Settings"
                         >
                             <Settings className="w-5 h-5" />
                         </button>
