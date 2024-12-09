@@ -25,6 +25,7 @@ interface ContentState {
         researchData: ResearchData
     ) => Promise<void>;
     removeContent: (index: number) => void;
+    clearOldContent: () => void;
 }
 
 export const useContentStore = create<ContentState>((set, get) => ({
@@ -36,33 +37,39 @@ export const useContentStore = create<ContentState>((set, get) => ({
     setActiveTab: (tab) => set({ activeTab: tab }),
 
     handleArticleType: async (type, researchData) => {
-        if (!researchData) return;
-
-        set({ isContentGenerating: true });
-
-        const { articleContents } = get();
-        const existingIndex = articleContents.findIndex(
-            (content) => content.type === type
-        );
-
-        if (existingIndex !== -1) {
-            set((state) => ({
-                articleContents: state.articleContents.map((content, index) =>
-                    index === existingIndex
-                        ? { ...content, isLoading: true }
-                        : content
-                ),
-            }));
-        } else {
-            set((state) => ({
-                articleContents: [
-                    ...state.articleContents,
-                    { type, content: "", isLoading: true },
-                ],
-            }));
+        if (!researchData) {
+            set({ error: "No research data available" });
+            return;
         }
 
+        set({ isContentGenerating: true, error: "" });
+
         try {
+            const { articleContents } = get();
+            const existingIndex = articleContents.findIndex(
+                (content) => content.type === type
+            );
+
+            // Update loading state for specific content
+            if (existingIndex !== -1) {
+                set((state) => ({
+                    articleContents: state.articleContents.map(
+                        (content, index) =>
+                            index === existingIndex
+                                ? { ...content, isLoading: true }
+                                : content
+                    ),
+                }));
+            } else {
+                set((state) => ({
+                    articleContents: [
+                        ...state.articleContents,
+                        { type, content: "", isLoading: true },
+                    ],
+                }));
+            }
+
+            // Generate content based on type
             let generatedContent = "";
             const queryToUse =
                 researchData.refinedQuery || researchData.originalQuery;
@@ -168,5 +175,9 @@ export const useContentStore = create<ContentState>((set, get) => ({
                 (_, i) => i !== index
             ),
         }));
+    },
+
+    clearOldContent: () => {
+        set({ articleContents: [] });
     },
 }));
