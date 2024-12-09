@@ -30,7 +30,7 @@ export function MainContent({
         <div className="w-full flex justify-center">
             <div
                 className={`transition-all duration-500 ease-in-out flex gap-6 ${
-                    isContentGenerating
+                    isContentGenerating || articleContents.length > 0
                         ? "w-full justify-between"
                         : "w-full max-w-2xl justify-center"
                 }`}
@@ -38,7 +38,9 @@ export function MainContent({
                 {/* Research Results */}
                 <div
                     className={`transition-all duration-500 ease-in-out ${
-                        isContentGenerating ? "w-1/2" : "w-full"
+                        isContentGenerating || articleContents.length > 0
+                            ? "w-1/2"
+                            : "w-full"
                     }`}
                 >
                     <ResearchResult
@@ -51,23 +53,17 @@ export function MainContent({
                     />
                 </div>
 
-                {/* Generated Content */}
-                <div
-                    className={`w-1/2 overflow-hidden transition-all duration-500 ease-in-out ${
-                        isContentGenerating
-                            ? "opacity-100 translate-x-0"
-                            : "opacity-0 translate-x-full hidden"
-                    }`}
-                >
-                    {isContentGenerating && (
+                {/* Content Generation */}
+                {(isContentGenerating || articleContents.length > 0) && (
+                    <div className="w-1/2">
                         <ContentTabs
                             contents={articleContents}
                             activeTab={activeTab}
                             onTabChange={onTabChange}
                             onRemoveContent={onRemoveContent}
                         />
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -6,8 +6,8 @@ import { Header } from "./components/Header";
 import { SettingsModal } from "./components/SettingsModal";
 import { MainContent } from "./components/MainContent";
 import { useApiKeys } from "./hooks/useApiKeys";
-import { useResearch } from "./hooks/useResearch";
-import { useContentGeneration } from "./hooks/useContentGeneration";
+import { useResearchStore } from "./store/researchStore";
+import { useContentStore } from "./store/contentStore";
 
 export function App() {
     const [showArticleModal, setShowArticleModal] = useState(false);
@@ -21,23 +21,25 @@ export function App() {
         handleDeleteKeys,
     } = useApiKeys();
 
-    const {
-        isLoading,
-        researchData,
-        error: researchError,
-        handleResearch,
-        handleMoreResearch,
-    } = useResearch();
+    const isLoading = useResearchStore((state) => state.isLoading);
+    const researchData = useResearchStore((state) => state.researchData);
+    const researchError = useResearchStore((state) => state.error);
+    const handleResearch = useResearchStore((state) => state.handleResearch);
+    const handleMoreResearch = useResearchStore(
+        (state) => state.handleMoreResearch
+    );
 
-    const {
-        articleContents,
-        activeTab,
-        isContentGenerating,
-        error: contentError,
-        setActiveTab,
-        handleArticleType,
-        removeContent,
-    } = useContentGeneration();
+    const articleContents = useContentStore((state) => state.articleContents);
+    const activeTab = useContentStore((state) => state.activeTab);
+    const isContentGenerating = useContentStore(
+        (state) => state.isContentGenerating
+    );
+    const contentError = useContentStore((state) => state.error);
+    const setActiveTab = useContentStore((state) => state.setActiveTab);
+    const handleArticleType = useContentStore(
+        (state) => state.handleArticleType
+    );
+    const removeContent = useContentStore((state) => state.removeContent);
 
     if (!isInitialized) {
         return (

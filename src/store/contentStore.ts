@@ -85,6 +85,7 @@ export const useContentStore = create<ContentState>((set, get) => ({
                 );
                 if (existingIndex !== -1) {
                     return {
+                        ...state,
                         articleContents: state.articleContents.map(
                             (content, index) =>
                                 index === existingIndex
@@ -98,6 +99,7 @@ export const useContentStore = create<ContentState>((set, get) => ({
                     };
                 }
                 return {
+                    ...state,
                     articleContents: [
                         ...state.articleContents,
                         {
@@ -111,16 +113,18 @@ export const useContentStore = create<ContentState>((set, get) => ({
         } catch (error) {
             console.error("Error generating content:", error);
             set((state) => ({
+                ...state,
                 error: "Failed to generate content. Please try again.",
                 articleContents: state.articleContents.filter(
                     (content) => content.type !== type
                 ),
+                isContentGenerating:
+                    state.articleContents.length <= 1
+                        ? false
+                        : state.isContentGenerating,
             }));
-            if (get().articleContents.length === 0) {
-                set({ isContentGenerating: false });
-            }
         } finally {
-            set({ isContentGenerating: false });
+            set((state) => ({ ...state, isContentGenerating: false }));
         }
     },
 
