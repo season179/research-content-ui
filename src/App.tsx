@@ -235,38 +235,38 @@ export function App() {
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <Header onOpenSettings={() => setShowSettingsModal(true)} />
 
-            <main className="flex-1 overflow-hidden">
-                <div className="container mx-auto px-4 py-8 h-full">
-                    <div className="flex flex-col items-center gap-8 h-full">
-                        {/* Search Input */}
-                        <div className={`transition-all duration-500 ease-in-out ${
-                            researchData ? 'w-full max-w-2xl' : 'w-full max-w-xl'
-                        }`}>
-                            <ResearchInput
-                                onSubmit={handleResearch}
-                                isLoading={isLoading}
-                            />
+            <main className="flex-1 container mx-auto px-4 py-8">
+                <div className="flex flex-col items-center gap-8">
+                    {/* Search Input */}
+                    <div className={`transition-all duration-500 ease-in-out ${
+                        researchData ? 'w-full max-w-2xl' : 'w-full max-w-xl'
+                    }`}>
+                        <ResearchInput
+                            onSubmit={handleResearch}
+                            isLoading={isLoading}
+                        />
+                    </div>
+
+                    {/* Error Message */}
+                    {error && (
+                        <div className="w-full max-w-2xl bg-red-50 text-red-600 p-4 rounded-lg">
+                            {error}
                         </div>
+                    )}
 
-                        {/* Error Message */}
-                        {error && (
-                            <div className="w-full max-w-2xl bg-red-50 text-red-600 p-4 rounded-lg">
-                                {error}
-                            </div>
-                        )}
-
-                        {/* Main Content Area */}
-                        {researchData && (
-                            <div className={`w-full transition-all duration-500 ease-in-out ${
+                    {/* Main Content Area */}
+                    {researchData && (
+                        <div className="w-full flex justify-center">
+                            <div className={`transition-all duration-500 ease-in-out flex gap-6 ${
                                 isContentGenerating 
-                                    ? 'flex gap-6' 
-                                    : 'flex justify-center'
+                                    ? 'w-full justify-between' 
+                                    : 'w-full max-w-2xl justify-center'
                             }`}>
                                 {/* Research Results */}
                                 <div className={`transition-all duration-500 ease-in-out ${
                                     isContentGenerating 
                                         ? 'w-1/2' 
-                                        : 'w-full max-w-2xl'
+                                        : 'w-full'
                                 }`}>
                                     <ResearchResult
                                         originalQuery={researchData.originalQuery}
@@ -282,7 +282,7 @@ export function App() {
                                 <div className={`w-1/2 overflow-hidden transition-all duration-500 ease-in-out ${
                                     isContentGenerating 
                                         ? 'opacity-100 translate-x-0' 
-                                        : 'opacity-0 translate-x-full w-0'
+                                        : 'opacity-0 translate-x-full hidden'
                                 }`}>
                                     {isContentGenerating && (
                                         <ContentTabs
@@ -305,8 +305,8 @@ export function App() {
                                     )}
                                 </div>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </main>
 

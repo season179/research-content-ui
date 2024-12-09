@@ -59,7 +59,7 @@ src/
 ## Roadmap
 
 - [x] Add a buy me a pizza button
-- [ ] Explore better UI/UX design
+- [x] Explore better UI/UX design
 - [ ] Scroll to the content when it is loading
 - [ ] Use AI to decide if more information can be gathered
 - [ ] Use AI to decide if more information should be gathered
