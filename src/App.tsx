@@ -5,6 +5,7 @@ import { ApiKeyInput } from "./components/ApiKeyInput";
 import { Header } from "./components/Header";
 import { SettingsModal } from "./components/SettingsModal";
 import { MainContent } from "./components/MainContent";
+import { ResearchHistory } from "./components/ResearchHistory";
 import { useApiKeysStore } from "./store/apiKeysStore";
 import { useResearchStore } from "./store/researchStore";
 import { useContentStore } from "./store/contentStore";
@@ -72,45 +73,60 @@ export function App() {
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <Header onOpenSettings={() => setShowSettingsModal(true)} />
 
-            <main className="flex-1 container mx-auto px-4 py-8">
-                <div className="flex flex-col items-center gap-8">
-                    {/* Search Input */}
-                    <div
-                        className={`transition-all duration-500 ease-in-out ${
-                            researchData
-                                ? "w-full max-w-2xl"
-                                : "w-full max-w-xl"
-                        }`}
-                    >
-                        <ResearchInput
-                            onSubmit={handleResearch}
-                            isLoading={isLoading}
-                        />
+            <div className="flex-1 flex">
+                {/* Sidebar */}
+                <div className="w-80 border-r bg-white overflow-y-auto">
+                    <div className="p-4 border-b bg-gray-50">
+                        <h2 className="font-semibold text-gray-900">
+                            Research History
+                        </h2>
                     </div>
-
-                    {/* Error Message */}
-                    {error && (
-                        <div className="w-full max-w-2xl bg-red-50 text-red-600 p-4 rounded-lg">
-                            {error}
-                        </div>
-                    )}
-
-                    {/* Main Content Area */}
-                    {researchData && (
-                        <MainContent
-                            researchData={researchData}
-                            isLoading={isLoading}
-                            isContentGenerating={isContentGenerating}
-                            articleContents={articleContents}
-                            activeTab={activeTab}
-                            onMoreResearch={handleMoreResearch}
-                            onCreateArticle={() => setShowArticleModal(true)}
-                            onTabChange={setActiveTab}
-                            onRemoveContent={removeContent}
-                        />
-                    )}
+                    <ResearchHistory />
                 </div>
-            </main>
+
+                {/* Main Content */}
+                <main className="flex-1 px-4 py-8 overflow-y-auto">
+                    <div className="container mx-auto flex flex-col items-center gap-8">
+                        {/* Search Input */}
+                        <div
+                            className={`transition-all duration-500 ease-in-out ${
+                                researchData
+                                    ? "w-full max-w-2xl"
+                                    : "w-full max-w-xl"
+                            }`}
+                        >
+                            <ResearchInput
+                                onSubmit={handleResearch}
+                                isLoading={isLoading}
+                            />
+                        </div>
+
+                        {/* Error Message */}
+                        {error && (
+                            <div className="w-full max-w-2xl bg-red-50 text-red-600 p-4 rounded-lg">
+                                {error}
+                            </div>
+                        )}
+
+                        {/* Main Content Area */}
+                        {researchData && (
+                            <MainContent
+                                researchData={researchData}
+                                isLoading={isLoading}
+                                isContentGenerating={isContentGenerating}
+                                articleContents={articleContents}
+                                activeTab={activeTab}
+                                onMoreResearch={handleMoreResearch}
+                                onCreateArticle={() =>
+                                    setShowArticleModal(true)
+                                }
+                                onTabChange={setActiveTab}
+                                onRemoveContent={removeContent}
+                            />
+                        )}
+                    </div>
+                </main>
+            </div>
 
             {/* Modals */}
             <ArticleTypeModal

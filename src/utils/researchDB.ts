@@ -25,11 +25,12 @@ export interface ResearchEntry {
  * Database version history:
  * 1: Initial version with basic research storage
  * 2: Added articles array to store generated content
+ * 3: Added createdAt index for sorting
  */
 class ResearchDB {
     private dbName = "ResearchAssistantDB";
     private storeName = "researchData";
-    private version = 2; // Increment version to trigger database upgrade
+    private version = 3; // Increment version to trigger database upgrade
 
     /**
      * Handles database errors by logging the error and throwing a new error.
@@ -70,6 +71,8 @@ class ResearchDB {
 
             request.onupgradeneeded = (event) => {
                 const db = (event.target as IDBOpenDBRequest).result;
+
+                // Create store if it doesn't exist
                 if (!db.objectStoreNames.contains(this.storeName)) {
                     const store = db.createObjectStore(this.storeName, {
                         keyPath: "id",
@@ -80,6 +83,16 @@ class ResearchDB {
                     store.createIndex("createdAt", "createdAt", {
                         unique: false,
                     });
+                } else {
+                    // If store exists but we need to add the createdAt index
+                    const store = request.transaction!.objectStore(
+                        this.storeName
+                    );
+                    if (!store.indexNames.contains("createdAt")) {
+                        store.createIndex("createdAt", "createdAt", {
+                            unique: false,
+                        });
+                    }
                 }
             };
         });
@@ -263,6 +276,34 @@ class ResearchDB {
                     request.onerror = () =>
                         this.handleError(request.error, reject);
                     request.onsuccess = () => resolve(request.result || null);
+                });
+            })
+        );
+    }
+
+    /**
+     * Retrieves all research entries sorted by creation date (newest first).
+     */
+    async getAllResearch(): Promise<ResearchEntry[]> {
+        return this.retryOperation(() =>
+            this.withTransaction("readonly", (store) => {
+                return new Promise((resolve, reject) => {
+                    const entries: ResearchEntry[] = [];
+                    const index = store.index("createdAt");
+                    const request = index.openCursor(null, "prev"); // Use 'prev' for descending order
+
+                    request.onerror = () =>
+                        this.handleError(request.error, reject);
+
+                    request.onsuccess = (event) => {
+                        const cursor = (event.target as IDBRequest).result;
+                        if (cursor) {
+                            entries.push(cursor.value);
+                            cursor.continue();
+                        } else {
+                            resolve(entries);
+                        }
+                    };
                 });
             })
         );

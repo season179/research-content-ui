@@ -16,14 +16,25 @@ export interface ResearchData {
     currentPage?: number;
 }
 
+interface ResearchEntry {
+    id: string;
+    originalQuery: string;
+    refinedQuery: string | null;
+    results: SearchResult[];
+    createdAt: string;
+    updatedAt: string;
+}
+
 interface ResearchState {
     isLoading: boolean;
     researchData: ResearchData | null;
     error: string;
     isInitialized: boolean;
+    history: ResearchEntry[];
     handleResearch: (topic: string, enhance: boolean) => Promise<void>;
     handleMoreResearch: () => Promise<void>;
     initializeResearch: () => Promise<void>;
+    loadResearch: (id: string) => Promise<void>;
 }
 
 export const useResearchStore = create<ResearchState>((set, get) => ({
@@ -31,14 +42,40 @@ export const useResearchStore = create<ResearchState>((set, get) => ({
     researchData: null,
     error: "",
     isInitialized: false,
+    history: [],
 
     initializeResearch: async () => {
         try {
             await researchDB.init();
-            set({ isInitialized: true });
+            const history = await researchDB.getAllResearch();
+            set({ isInitialized: true, history });
         } catch (error) {
             console.error("Failed to initialize research database:", error);
             set({ error: "Failed to initialize research database" });
+        }
+    },
+
+    loadResearch: async (id: string) => {
+        set({ isLoading: true, error: "" });
+        try {
+            const entry = await researchDB.getResearch(id);
+            if (!entry) {
+                throw new Error("Research not found");
+            }
+            set({
+                researchData: {
+                    id: entry.id,
+                    originalQuery: entry.originalQuery,
+                    refinedQuery: entry.refinedQuery,
+                    results: entry.results,
+                    currentPage: 1,
+                },
+            });
+        } catch (error) {
+            console.error("Failed to load research:", error);
+            set({ error: "Failed to load research" });
+        } finally {
+            set({ isLoading: false });
         }
     },
 
@@ -59,7 +96,14 @@ export const useResearchStore = create<ResearchState>((set, get) => ({
                 results: entry.results,
                 currentPage: 1,
             };
-            set({ researchData: researchDataWithPage });
+
+            // Update history
+            const history = await researchDB.getAllResearch();
+            
+            set({ 
+                researchData: researchDataWithPage,
+                history
+            });
         } catch (error) {
             console.error("Research error:", error);
             set({
