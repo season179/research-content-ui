@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { performResearch } from "../services/research";
 import { researchDB } from "../utils/researchDB";
+import { useContentStore } from "./contentStore";
 
 interface SearchResult {
     title: string;
@@ -23,6 +24,10 @@ interface ResearchEntry {
     results: SearchResult[];
     createdAt: string;
     updatedAt: string;
+    articles: Array<{
+        type: string;
+        content: string;
+    }>;
 }
 
 interface ResearchState {
@@ -62,6 +67,8 @@ export const useResearchStore = create<ResearchState>((set, get) => ({
             if (!entry) {
                 throw new Error("Research not found");
             }
+
+            // Set research data
             set({
                 researchData: {
                     id: entry.id,
@@ -71,6 +78,22 @@ export const useResearchStore = create<ResearchState>((set, get) => ({
                     currentPage: 1,
                 },
             });
+
+            // Load articles into content store
+            const contentStore = useContentStore.getState();
+            contentStore.clearContent();
+
+            if (entry.articles && entry.articles.length > 0) {
+                entry.articles.forEach((article) => {
+                    contentStore.addExistingContent(
+                        article.type,
+                        article.content
+                    );
+                });
+
+                // Set active tab to the first article type
+                contentStore.setActiveTab(entry.articles[0].type);
+            }
         } catch (error) {
             console.error("Failed to load research:", error);
             set({ error: "Failed to load research" });
@@ -97,12 +120,15 @@ export const useResearchStore = create<ResearchState>((set, get) => ({
                 currentPage: 1,
             };
 
+            // Clear existing content when starting new research
+            useContentStore.getState().clearContent();
+
             // Update history
             const history = await researchDB.getAllResearch();
-            
-            set({ 
+
+            set({
                 researchData: researchDataWithPage,
-                history
+                history,
             });
         } catch (error) {
             console.error("Research error:", error);

@@ -26,8 +26,13 @@ interface ContentState {
         researchData: ResearchData
     ) => Promise<void>;
     removeContent: (index: number) => void;
-    clearOldContent: () => void;
+    clearContent: () => void;
+    addExistingContent: (type: string, content: string) => void;
 }
+
+const isValidContentType = (type: string): type is ContentType => {
+    return Object.values(CONTENT_TYPES).includes(type as ContentType);
+};
 
 const updateContentLoadingState = (
     articleContents: ArticleContentType[],
@@ -83,7 +88,7 @@ const saveGeneratedArticleToDatabase = async (
     }
 };
 
-export const useContentStore = create<ContentState>((set, get) => ({
+export const useContentStore = create<ContentState>((set) => ({
     articleContents: [],
     activeTab: null,
     isContentGenerating: false,
@@ -156,10 +161,27 @@ export const useContentStore = create<ContentState>((set, get) => ({
             articleContents: state.articleContents.filter(
                 (_, i) => i !== index
             ),
+            activeTab:
+                state.articleContents.length <= 1 ? null : state.activeTab,
         }));
     },
 
-    clearOldContent: () => {
-        set({ articleContents: [] });
+    clearContent: () => {
+        set({ articleContents: [], activeTab: null });
+    },
+
+    addExistingContent: (type: string, content: string) => {
+        // Validate the content type before adding
+        if (!isValidContentType(type)) {
+            console.warn(`Invalid content type: ${type}`);
+            return;
+        }
+
+        set((state) => ({
+            articleContents: [
+                ...state.articleContents,
+                { type: type as ContentType, content, isLoading: false },
+            ],
+        }));
     },
 }));
