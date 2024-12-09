@@ -1,5 +1,5 @@
-import { Settings } from "lucide-react";
-import { Brain } from "lucide-react";
+import { Settings, Brain } from "lucide-react";
+import { BuyMeACoffee } from "./BuyMeACoffee";
 
 interface HeaderProps {
   onOpenSettings: () => void;
@@ -17,13 +17,16 @@ export function Header({ onOpenSettings }: HeaderProps) {
             <h1 className="text-xl font-semibold">Research Assistant & Content Writer</h1>
           </div>
           
-          <button
-            onClick={onOpenSettings}
-            className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-            title="Manage API Keys"
-          >
-            <Settings className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-4">
+            <BuyMeACoffee />
+            <button
+              onClick={onOpenSettings}
+              className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              title="Manage API Keys"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
