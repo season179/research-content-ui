@@ -1,4 +1,4 @@
-import { Copy, X } from "lucide-react";
+import { Copy } from "lucide-react";
 import { useState } from "react";
 import ReactMarkdown from 'react-markdown';
 import { LoadingSpinner } from "./LoadingSpinner";
@@ -10,15 +10,8 @@ interface ArticleContentProps {
     onRemove: () => void;
 }
 
-export function ArticleContent({ content, type, isLoading = false, onRemove }: ArticleContentProps) {
+export function ArticleContent({ content, type, isLoading = false }: ArticleContentProps) {
     const [copySuccess, setCopySuccess] = useState(false);
-
-    const typeLabels = {
-        tweet: "Tweet Thread",
-        blog: "Blog Post",
-        newsletter: "Newsletter",
-        linkedin: "LinkedIn Post",
-    };
 
     const handleCopy = () => {
         const textarea = document.createElement('textarea');
@@ -40,21 +33,8 @@ export function ArticleContent({ content, type, isLoading = false, onRemove }: A
 
     if (isLoading) {
         return (
-            <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold text-gray-700">
-                        {typeLabels[type]}
-                    </h3>
-                    <button
-                        onClick={onRemove}
-                        className="p-1 text-gray-400 hover:text-gray-600 rounded-lg"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
-                </div>
-                <div className="flex justify-center items-center h-40">
-                    <LoadingSpinner size="lg" />
-                </div>
+            <div className="flex justify-center items-center h-full">
+                <LoadingSpinner size="lg" />
             </div>
         );
     }
@@ -104,12 +84,9 @@ export function ArticleContent({ content, type, isLoading = false, onRemove }: A
     );
 
     return (
-        <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
-            <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-700">
-                    {typeLabels[type]}
-                </h3>
-                <div className="flex items-center gap-2">
+        <div className="h-full overflow-y-auto">
+            <div className="sticky top-0 z-10 bg-white pb-4">
+                <div className="flex justify-end">
                     <button
                         onClick={handleCopy}
                         className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-200 text-sm ${
@@ -121,16 +98,10 @@ export function ArticleContent({ content, type, isLoading = false, onRemove }: A
                         <Copy className={`w-4 h-4 ${copySuccess ? 'text-green-700' : ''}`} />
                         {copySuccess ? 'Copied!' : 'Copy'}
                     </button>
-                    <button
-                        onClick={onRemove}
-                        className="p-1 text-gray-400 hover:text-gray-600 rounded-lg"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
                 </div>
             </div>
 
-            <div className="border-t pt-4">
+            <div className="pb-6">
                 {contentDisplay}
             </div>
         </div>

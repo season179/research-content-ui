@@ -6,6 +6,7 @@ import { ArticleContent } from "./components/ArticleContent";
 import { ApiKeyInput } from "./components/ApiKeyInput";
 import { Header } from "./components/Header";
 import { SettingsModal } from "./components/SettingsModal";
+import { ContentTabs } from "./components/ContentTabs";
 import { apiKeyDB } from "./utils/db";
 import { performResearch } from "./services/research";
 import {
@@ -49,6 +50,7 @@ export function App() {
     const [apiKeys, setApiKeys] = useState<ApiKeys>({ openai: "", tavily: "" });
     const [isInitialized, setIsInitialized] = useState(false);
     const [error, setError] = useState<string>("");
+    const [activeTab, setActiveTab] = useState<string | null>(null);
 
     useEffect(() => {
         const loadApiKeys = async () => {
@@ -97,6 +99,7 @@ export function App() {
             };
             setResearchData(researchDataWithPage);
             setArticleContents([]); // Clear previous content when starting new research
+            setActiveTab(null);
         } catch (error) {
             console.error("Research error:", error);
             setError(
@@ -231,64 +234,75 @@ export function App() {
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <Header onOpenSettings={() => setShowSettingsModal(true)} />
 
-            <div className="flex-1">
-                <div className="container mx-auto px-4 py-8">
-                    <div className="flex flex-col items-center gap-8">
+            <div className="flex-1 overflow-hidden">
+                <div className="container mx-auto px-4 py-8 h-full">
+                    <div className="flex flex-col gap-8 h-full">
                         <ResearchInput
                             onSubmit={handleResearch}
                             isLoading={isLoading}
                         />
 
                         {error && (
-                            <div className="w-full max-w-2xl bg-red-50 text-red-600 p-4 rounded-lg">
+                            <div className="w-full bg-red-50 text-red-600 p-4 rounded-lg">
                                 {error}
                             </div>
                         )}
 
                         {researchData && (
-                            <ResearchResult
-                                originalQuery={researchData.originalQuery}
-                                refinedQuery={researchData.refinedQuery}
-                                results={researchData.results}
-                                onMoreResearch={handleMoreResearch}
-                                onCreateArticle={() => setShowArticleModal(true)}
-                                isLoading={isLoading}
-                            />
+                            <div className="flex gap-6 flex-1 min-h-0">
+                                {/* Left side: Research Results */}
+                                <div className="w-1/2 overflow-y-auto">
+                                    <ResearchResult
+                                        originalQuery={researchData.originalQuery}
+                                        refinedQuery={researchData.refinedQuery}
+                                        results={researchData.results}
+                                        onMoreResearch={handleMoreResearch}
+                                        onCreateArticle={() => setShowArticleModal(true)}
+                                        isLoading={isLoading}
+                                    />
+                                </div>
+
+                                {/* Right side: Generated Content */}
+                                <div className="w-1/2 overflow-hidden flex flex-col">
+                                    <ContentTabs
+                                        contents={articleContents}
+                                        activeTab={activeTab}
+                                        onTabChange={setActiveTab}
+                                        onRemoveContent={(index) => {
+                                            setArticleContents((prev) =>
+                                                prev.filter((_, i) => i !== index)
+                                            );
+                                            if (articleContents.length === 1) {
+                                                setActiveTab(null);
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
                         )}
-
-                        {articleContents.map((content, index) => (
-                            <ArticleContent
-                                key={`${content.type}-${index}`}
-                                content={content.content}
-                                type={content.type}
-                                isLoading={content.isLoading}
-                                onRemove={() => {
-                                    setArticleContents((prev) =>
-                                        prev.filter((_, i) => i !== index)
-                                    );
-                                }}
-                            />
-                        ))}
-
-                        <ArticleTypeModal
-                            isOpen={showArticleModal}
-                            onClose={() => setShowArticleModal(false)}
-                            onSelect={handleArticleType}
-                            existingTypes={articleContents.map(
-                                (content) => content.type
-                            )}
-                        />
-
-                        <SettingsModal
-                            isOpen={showSettingsModal}
-                            onClose={() => setShowSettingsModal(false)}
-                            currentKeys={apiKeys}
-                            onUpdateKeys={handleApiKeysSubmit}
-                            onDeleteKeys={handleDeleteKeys}
-                        />
                     </div>
                 </div>
             </div>
+
+            <ArticleTypeModal
+                isOpen={showArticleModal}
+                onClose={() => setShowArticleModal(false)}
+                onSelect={(type) => {
+                    handleArticleType(type);
+                    setActiveTab(type);
+                }}
+                existingTypes={articleContents.map(
+                    (content) => content.type
+                )}
+            />
+
+            <SettingsModal
+                isOpen={showSettingsModal}
+                onClose={() => setShowSettingsModal(false)}
+                currentKeys={apiKeys}
+                onUpdateKeys={handleApiKeysSubmit}
+                onDeleteKeys={handleDeleteKeys}
+            />
         </div>
     );
 }

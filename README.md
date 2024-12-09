@@ -55,3 +55,15 @@ src/
    - Copy the research
    - Get more research depth
    - Generate content in various formats
+
+## Roadmap
+
+- [x] Add a buy me a pizza button
+- [ ] Explore better UI/UX design
+- [ ] Scroll to the content when it is loading
+- [ ] Use AI to decide if more information can be gathered
+- [ ] Use AI to decide if more information should be gathered
+- [ ] Persist topic and results
+- [ ] Export data
+- [ ] Import data
+- [ ] Allow user to bring their own research
