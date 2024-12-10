@@ -131,3 +131,4 @@ dist
 
 # Test results
 test-results/
+playwright-report/
