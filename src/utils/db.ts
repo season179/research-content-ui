@@ -6,7 +6,7 @@ interface ApiKeys {
 class ApiKeyDB {
     private dbName = "ResearchAssistantDB";
     private storeName = "apiKeys";
-    private version = 1;
+    private version = 3;
 
     async init(): Promise<void> {
         return new Promise((resolve, reject) => {
