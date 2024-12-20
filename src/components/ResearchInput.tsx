@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Search } from "lucide-react";
 import { LoadingSpinner } from "./LoadingSpinner";
+import posthog from 'posthog-js';
 
 interface ResearchInputProps {
     onSubmit: (topic: string, enhance: boolean) => void;
@@ -14,6 +15,11 @@ export function ResearchInput({ onSubmit, isLoading }: ResearchInputProps) {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (topic.trim()) {
+            posthog.capture('research_topic_submitted', {
+                topic: topic.trim(),
+                enhance_query: enhanceQuery,
+                timestamp: new Date().toISOString()
+            });
             onSubmit(topic.trim(), enhanceQuery);
         }
     };

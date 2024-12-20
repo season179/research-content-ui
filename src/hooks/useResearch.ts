@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { performResearch } from "../services/research";
+import posthog from 'posthog-js';
 
 interface SearchResult {
     title: string;
@@ -46,6 +47,13 @@ export function useResearch() {
         setError("");
         try {
             const nextPage = (researchData.currentPage || 1) + 1;
+            posthog.capture('load_more_results_clicked', {
+                original_query: researchData.originalQuery,
+                current_page: researchData.currentPage,
+                next_page: nextPage,
+                timestamp: new Date().toISOString()
+            });
+            
             const moreResults = await performResearch(
                 researchData.originalQuery,
                 nextPage,
